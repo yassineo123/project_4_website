@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Housing Management System - Dashboard</title>
+    <link rel="stylesheet" href="../styling/style.css">
+
+
+</head>
+<body class="dashboard-page">
+    <header>
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1>Aankondigingen Beheer</h1>
+                <a href="../project_4_html/dashboard.html" class="btn btn-secondary">← Terug naar Home</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- aankondiging sectie -->
+        <div class="card mb-6">
+            <div class="card-header">
+                <h3>Nieuwe Aankondiging Toevoegen</h3>
+            </div>
+            <div class="card-content">
+                <form id="aankondigingForm">
+                    <div class="form-group">
+                        <label for="aankondigingTitel" class="form-label">Titel</label>
+                        <input 
+                            type="text" 
+                            id="aankondigingTitel" 
+                            class="form-input" 
+                            placeholder="Bijv: Internet upgrade gepland"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="aankondigingBericht" class="form-label">Bericht</label>
+                        <textarea 
+                            id="aankondigingBericht" 
+                            class="form-input" 
+                            rows="4"
+                            placeholder="Voer hier de volledige aankondiging in..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="grid two-col-grid">
+                        <div class="form-group">
+                            <label for="announcementPriority" class="form-label">Prioriteit</label>
+                            <select id="announcementPriority" class="form-input">
+                                <option value="blue">Info (Blauw)</option>
+                                <option value="green">Positief (Groen)</option>
+                                <option value="orange">Belangrijk (Oranje)</option>
+                                <option value="red">Urgent (Rood)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="aankondiginggebouw" class="form-label">Gebouw (optioneel)</label>
+                            <select id="aankondiginggebouw" class="form-input">
+                                <option value="">Alle gebouwen</option>
+                                <option value="gebouw A">gebouw A</option>
+                                <option value="gebouw B">gebouw B</option>
+                                <option value="gebouw C">gebouw C</option>
+                                <option value="gebouw D">gebouw D</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-footer" style="justify-content: flex-end; margin-top: 1.5rem;">
+                        <button type="submit" class="login-button">Publiceren</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    <script src="../aankondigingen.js"></script>
+</body>
+</html>
+
+            

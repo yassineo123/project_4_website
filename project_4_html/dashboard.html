@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Housing Management System - Dashboard</title>
-    <link rel="stylesheet" href="styling/style.css">
+    <link rel="stylesheet" href="../styling/style.css">
 </head>
 <body>
     <header>
@@ -14,13 +14,13 @@
     </header>
     <main class="container">
         <div class="grid two-col-grid mb-6">
-            <!-- Recent Announcements -->
+            <!-- Recente mededelingen -->
             <div class="card" id="Left">
                 <div class="card-header">
                     <h2>Recente Aankondigingen</h2>
                 </div>
                 <div class="card-content">
-                    <div class="space-y-4">
+                    <div id="announcementsList" class="space-y-4">
                         <div class="activity-item">
                             <div class="activity-dot urgent"></div>
                             <div class="flex-1">
@@ -61,5 +61,6 @@
             </div>
        </div>
     </main>
+    <script src="../aankondigingen.js"></script>
 </body>
 </html>
