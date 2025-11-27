@@ -1,0 +1,42 @@
+[
+  {
+    "announcement_id": 1,
+    "titel": "Onderhoud aan warmwaterinstallatie",
+    "bericht": "Er zal op dinsdag tussen 09:00 en 12:00 tijdelijk geen warm water beschikbaar zijn door gepland onderhoud.",
+    "prioriteit": "hoog",
+    "gebouw": "Gebouw A",
+    "gebruiker_id": 2
+  },
+  {
+    "announcement_id": 2,
+    "titel": "Nieuwe gemeenschappelijke lounge geopend",
+    "bericht": "Vanaf vandaag is de nieuwe lounge op de begane grond geopend. Iedereen is welkom!",
+    "prioriteit": "normaal",
+    "gebouw": "Gebouw C",
+    "gebruiker_id": 5
+  },
+  {
+    "announcement_id": 3,
+    "titel": "Fietsenstalling tijdelijk gesloten",
+    "bericht": "De fietsenstalling wordt opnieuw geverfd en is daarom gesloten tot vrijdag.",
+    "prioriteit": "laag",
+    "gebouw": null,
+    "gebruiker_id": 3
+  },
+  {
+    "announcement_id": 4,
+    "titel": "Brandalarm test",
+    "bericht": "Morgen om 14:00 wordt een verplichte test van het brandalarm uitgevoerd. Geen actie vereist.",
+    "prioriteit": "normaal",
+    "gebouw": "Gebouw B",
+    "gebruiker_id": 1
+  },
+  {
+    "announcement_id": 5,
+    "titel": "Verloren telefoon gevonden",
+    "bericht": "Er is een zwarte Samsung-telefoon gevonden in de gangen van Gebouw A. Af te halen bij de receptie.",
+    "prioriteit": "laag",
+    "gebouw": "Gebouw A",
+    "gebruiker_id": 4
+  }
+]

@@ -104,7 +104,17 @@ export default function LoginScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.button}
           >
-            <ThemedText>Inloggen</ThemedText>
+            <Pressable
+              style={{ width: "100%", display: "flex", alignItems: "center" }}
+            >
+              <Link
+                href="/melding"
+                asChild
+                style={{ width: "100%", textAlign: "center" }}
+              >
+                <ThemedText>Inloggen</ThemedText>
+              </Link>
+            </Pressable>
           </LinearGradient>
           <ThemedText style={{ color: "black", marginTop: 15 }}>
             Wachtwoord vergeten?
