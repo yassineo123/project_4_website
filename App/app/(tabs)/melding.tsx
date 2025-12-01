@@ -4,6 +4,7 @@ import * as AppleAuthentication from "expo-apple-authentication";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link } from "expo-router";
 import * as React from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -16,12 +17,31 @@ import {
   ScrollView,
 } from "react-native";
 
-import testData from "../../../App/test_data.json";
-
-// Log the imported test data so it appears in the Metro/remote console
-console.log("test_data.json:", testData);
+interface Announcement {
+  announcement_id: number;
+  titel: string;
+  bericht: string;
+  prioriteit: string;
+  gebouw?: string;
+  gebruiker_id: number;
+}
 
 export default function MeldingScreen() {
+const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+    fetch("http://localhost:8000/enquiry.php") // IP van je PC/Server
+      .then((response) => response.json())
+      .then((data) => {
+        setAnnouncements(data);
+      })
+      .catch((error) => {
+        console.error(error);
+        Alert.alert("Fout bij ophalen meldingen", error.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <LinearGradient
@@ -49,47 +69,29 @@ export default function MeldingScreen() {
             Meldingen
           </ThemedText>
           <View style={{ width: "100%", marginTop: 10, flex: 1 }}>
-            <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-              {testData.map((item, index) => (
-                <View
-                  key={index}
-                  style={{
-                    backgroundColor: "#f5f5f5",
-                    padding: 15,
-                    borderRadius: 12,
-                    marginBottom: 15,
-                    width: "100%",
-                  }}
-                >
-                  <ThemedText
-                    type="subtitle"
-                    style={{ color: "black", fontSize: 18 }}
-                  >
-                    {item.titel}
-                  </ThemedText>
-
-                  <ThemedText style={{ color: "#444", marginTop: 5 }}>
-                    {item.bericht}
-                  </ThemedText>
-
-                  <ThemedText
-                    style={{
-                      color: item.prioriteit === "hoog" ? "red" : "#777",
-                      marginTop: 10,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Prioriteit: {item.prioriteit}
-                  </ThemedText>
-
-                  {item.gebouw && (
-                    <ThemedText style={{ marginTop: 5, color: "#555" }}>
-                      Gebouw: {item.gebouw}
-                    </ThemedText>
-                  )}
-                </View>
-              ))}
-            </ScrollView>
+      {loading ? (
+        <ThemedText>Laden...</ThemedText>
+      ) : (
+        <ScrollView>
+          {announcements.map((item) => (
+            <View key={item.announcement_id} style={styles.card}>
+              <ThemedText type="subtitle" style={{ fontSize: 18 }}>
+                {item.titel}
+              </ThemedText>
+              <ThemedText>{item.bericht}</ThemedText>
+              <ThemedText
+                style={{
+                  color: item.prioriteit === "hoog" ? "red" : "#777",
+                  fontWeight: "bold",
+                }}
+              >
+                Prioriteit: {item.prioriteit}
+              </ThemedText>
+              {item.gebouw && <ThemedText>Gebouw: {item.gebouw}</ThemedText>}
+            </View>
+          ))}
+        </ScrollView>
+      )}
           </View>
         </ThemedView>
       </LinearGradient>
@@ -126,6 +128,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     fontSize: 12,
     color: "#494949ff",
+  },
+    card: {
+    backgroundColor: "#f5f5f5",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
   },
   content: {
     backgroundColor: "rgba(255, 255, 255, 1)",

@@ -1,44 +1,52 @@
+import React, { useState, useContext } from "react";
+import { Alert, Image, Keyboard, Pressable, StyleSheet, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import * as AppleAuthentication from "expo-apple-authentication";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
-import * as React from "react";
-import {
-  Alert,
-  Image,
-  Keyboard,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { Link, useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AuthContext } from "@/app/AuthProvider"; // pas pad aan
 
 export default function LoginScreen() {
-  async function handleAppleSignIn() {
-    try {
-      const credential = await AppleAuthentication.signInAsync({
-        requestedScopes: [
-          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-          AppleAuthentication.AppleAuthenticationScope.EMAIL,
-        ],
-      });
+  const [gebruikersnaam, setGebruikersnaam] = useState("");
+  const [wachtwoord, setWachtwoord] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { setUser } = useContext(AuthContext);
 
-      Alert.alert(
-        "Resultaat",
-        JSON.stringify(credential, null, 2) // hier dus de credential
-      );
-    } catch (e) {
-      if (
-        typeof e === "object" &&
-        e !== null &&
-        "code" in e &&
-        (e as { code?: string }).code === "ERR_CANCELED"
-      ) {
-        console.log("User cancelled Apple sign in");
-      } else {
+  async function handleLogin() {
+    if (!gebruikersnaam || !wachtwoord) return Alert.alert("Vul gebruikersnaam en wachtwoord in");
+
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:8000/login.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gebruikersnaam, wachtwoord }),
+      });
+      const json = await res.json();
+
+      if (!res.ok) {
+        Alert.alert("Login mislukt", json.error || "Onbekende fout");
+        setLoading(false);
+        return;
       }
+
+      if (json.success && json.user) {
+        // Sla user op in AsyncStorage
+        await AsyncStorage.setItem("user", JSON.stringify(json.user));
+        // Zet in context
+        setUser(json.user);
+        // Navigeer naar meldingen
+        router.replace("/melding");
+      } else {
+        Alert.alert("Login mislukt", json.error || "Onbekende fout");
+      }
+    } catch (err: any) {
+      console.error(err);
+      Alert.alert("Fout", err.message || "Netwerkfout");
+    } finally {
+      setLoading(false);
     }
   }
   return (
@@ -83,6 +91,7 @@ export default function LoginScreen() {
               keyboardType="default"
               autoCapitalize="none"
               placeholderTextColor="#c4c4c4ff"
+              value={gebruikersnaam} onChangeText={setGebruikersnaam}
             />
           </View>
 
@@ -95,6 +104,7 @@ export default function LoginScreen() {
               secureTextEntry
               autoCapitalize="none"
               placeholderTextColor="#c4c4c4ff"
+              value={wachtwoord} onChangeText={setWachtwoord}
             />
           </View>
 
@@ -106,14 +116,9 @@ export default function LoginScreen() {
           >
             <Pressable
               style={{ width: "100%", display: "flex", alignItems: "center" }}
+              onPress={handleLogin}
             >
-              <Link
-                href="/melding"
-                asChild
-                style={{ width: "100%", textAlign: "center" }}
-              >
                 <ThemedText>Inloggen</ThemedText>
-              </Link>
             </Pressable>
           </LinearGradient>
           <ThemedText style={{ color: "black", marginTop: 15 }}>
@@ -151,7 +156,7 @@ export default function LoginScreen() {
               />
               <ThemedText style={{ color: "black" }}>Google</ThemedText>
             </ThemedView>
-            <Pressable onPress={handleAppleSignIn} style={styles.option}>
+            <Pressable style={styles.option}>
               <Image
                 source={require("@/assets/images/Apple_logo.png")}
                 style={{ width: 20, height: 20, marginRight: 10 }}
