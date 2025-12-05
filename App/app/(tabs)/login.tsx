@@ -1,25 +1,33 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Alert, Image, Keyboard, Pressable, StyleSheet, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AuthContext } from "@/app/AuthProvider"; // pas pad aan
+import { AuthContext } from "@/app/AuthProvider";
+
 
 export default function LoginScreen() {
   const [gebruikersnaam, setGebruikersnaam] = useState("");
   const [wachtwoord, setWachtwoord] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loadings, setLoadings] = useState(false);
   const router = useRouter();
+  const { user, loading } = useContext(AuthContext);
   const { setUser } = useContext(AuthContext);
+
+    useEffect(() => {
+    if (!loading && user) {
+      router.replace("/"); // al ingelogd -> naar index
+    }
+  }, [user, loading]);
 
   async function handleLogin() {
     if (!gebruikersnaam || !wachtwoord) return Alert.alert("Vul gebruikersnaam en wachtwoord in");
 
-    setLoading(true);
+    setLoadings(true);
     try {
-      const res = await fetch("http://localhost:8000/login.php", {
+      const res = await fetch("https://immersible-letty-paranormal.ngrok-free.dev//login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ gebruikersnaam, wachtwoord }),
@@ -28,7 +36,7 @@ export default function LoginScreen() {
 
       if (!res.ok) {
         Alert.alert("Login mislukt", json.error || "Onbekende fout");
-        setLoading(false);
+        setLoadings(false);
         return;
       }
 
@@ -38,7 +46,7 @@ export default function LoginScreen() {
         // Zet in context
         setUser(json.user);
         // Navigeer naar meldingen
-        router.replace("/melding");
+        router.replace("/");
       } else {
         Alert.alert("Login mislukt", json.error || "Onbekende fout");
       }
@@ -46,7 +54,7 @@ export default function LoginScreen() {
       console.error(err);
       Alert.alert("Fout", err.message || "Netwerkfout");
     } finally {
-      setLoading(false);
+      setLoadings(false);
     }
   }
   return (

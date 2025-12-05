@@ -1,11 +1,20 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
-import React from "react";
+import { Link, useRouter } from "expo-router";
+import React, {useContext, useEffect} from "react";
 import { Image, Pressable, StyleSheet } from "react-native";
+import { AuthContext } from "@/app/AuthProvider";
 
 export default function WelkomScreen() {
+    const router = useRouter();
+    const { user, loading } = useContext(AuthContext);
+
+      useEffect(() => {
+      if (!loading && user) {
+        router.replace("/"); // al ingelogd -> naar index
+      }
+    }, [user, loading]);
   return (
     <LinearGradient
       colors={["rgba(0, 183, 255, 1)", "rgba(55, 0, 117, 1)"]}

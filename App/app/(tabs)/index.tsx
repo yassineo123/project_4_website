@@ -1,129 +1,242 @@
-// app/(tabs)/index.tsx
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import * as AppleAuthentication from "expo-apple-authentication";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import * as React from "react";
+import AuthGuard from "@/components/AuthGuard";
+import NavBar from "@/components/nav-bar";
+import { AuthContext } from "@/app/AuthProvider";
+import { useEffect, useState, useContext } from "react";
+import {
+  Alert,
+  Image,
+  Keyboard,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+  ScrollView,
+  Text,
+} from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+interface Announcement {
+  announcement_id: number;
+  titel: string;
+  bericht: string;
+  prioriteit: string;
+  gebouw?: string;
+  gebruiker_id: number;
+}
 
-export default function HomeScreen() {
+export default function MeldingScreen() {
+const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { user } = useContext(AuthContext);
 
-  useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        const token = await AsyncStorage.getItem('`userToken`'); // of jouw key
-        if (!token) {
-          // vervang met '/welkom' of '/login' afhankelijk van jouw structuur
-          router.replace('/welkom');
-        }
-        else {
-          router.replace('/');
-        }
-      } catch (err) {
-        console.error('Error reading token', err);
-        // fallback: redirect naar welkom
-        router.replace('/welkom');
-      }
-    };
-
-    checkLogin();
+    useEffect(() => {
+    fetch("https://immersible-letty-paranormal.ngrok-free.dev//enquiry.php") // IP van je PC/Server
+      .then((response) => response.json())
+      .then((data) => {
+        setAnnouncements(data);
+      })
+      .catch((error) => {
+        console.error(error);
+        Alert.alert("Fout bij ophalen meldingen", error.message);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/SHICON.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
+    <AuthGuard>
+      <LinearGradient
+        colors={["rgba(0, 183, 255, 1)", "rgba(55, 0, 117, 1)"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.background}
+      >
+        <ThemedView
+          style={{
+            position: "absolute",
+            top: 20,
+            width: "100%",
+            alignItems: "center",
+          }}
+        >
+          <Image
+            source={require("@/assets/images/SHICON4.png")}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </ThemedView>
+        <ThemedView style={styles.content}>
+          <ThemedText type="title" style={styles.title}>
+            Meldingen
+          </ThemedText>
+          {user?.rol === "beheerder" && (
+        <Pressable
+          onPress={() => router.push("/melding_post")}
+          style={{
+            marginTop: 20,
+            backgroundColor: "#1d3557",
+            padding: 12,
+            borderRadius: 10,
+            alignSelf: "flex-start",
+          }}
+        >
+          <Text style={{ color: "white", fontWeight: "bold" }}>Melding aanmaken</Text>
+        </Pressable>
+      )}
+          <View style={{ width: "100%", marginTop: 10, flex: 1 }} >
+      {loading ? (
+        <ThemedText>Laden...</ThemedText>
+      ) : (
+        <ScrollView keyboardShouldPersistTaps>
+          {announcements.map((item) => (
+            <View key={item.announcement_id} style={styles.card}>
+              <ThemedView style={{ backgroundColor: "trans"}}>
+                              <ThemedText type="subtitle" style={{ fontSize: 18, color: "black", backgroundColor: "transparant"}}>
+                {item.titel}
+              </ThemedText>
+                            <ThemedText
+                style={{
+                  color: "#00000073",
+  
 
-      {/* rest van je bestaande content blijft hetzelfde */}
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
+                  fontWeight: "bold",
+                  backgroundColor: item.prioriteit === "hoog"
+    ? "#0088ffff" // lichtrood
+    : item.prioriteit === "normaal"
+    ? "#71bdffff" // lichtgroen
+    : "#add9ffff",
 
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    padding: 5,
+    alignSelf: "flex-start",
+    borderRadius: 10,
+                }}
+              >
+                Prioriteit: {item.prioriteit}
+              </ThemedText>
+              </ThemedView>
+              <ThemedText style={{color: "#626262ff"}}>{item.bericht}</ThemedText>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+              {item.gebouw && <ThemedText style={{    padding: 5,
+    alignSelf: "flex-start",
+    borderRadius: 10, backgroundColor: "#c5c5c5ff"}}>Gebouw: {item.gebouw}</ThemedText>}
+            </View>
+          ))}
+        </ScrollView>
+      )}
+          </View>
+        </ThemedView>
+      </LinearGradient>
+    <NavBar/>
+    </AuthGuard>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  background: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  header: {
+    marginTop: 10,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "transparent",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  image: {
+    width: 120,
+    height: 120,
+    position: "absolute",
+  },
+  register: {
+    fontWeight: "bold",
+    backgroundColor: "rgba(0, 0, 0, 0.09)",
+    paddingEnd: 10,
+    paddingStart: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    borderRadius: 10,
+    fontSize: 12,
+    color: "#494949ff",
+  },
+    card: {
+    backgroundColor: "#f5f5f5",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
+  },
+  content: {
+    backgroundColor: "rgba(255, 255, 255, 1)",
+    padding: 20,
+    borderRadius: 30,
+    height: "80%",
+    width: "90%",
+    bottom: 30,
+    position: "absolute",
+    alignItems: "center",
+  },
+  title: {
+    color: "black",
+    fontSize: 24,
+    textAlign: "center",
+    marginBottom: 20,
+    marginTop: 20,
+  },
+  inputGroup: {
+    marginBottom: 15,
+    width: "90%",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    backgroundColor: "#fff",
+  },
+  label: {
+    color: "#777",
+    fontSize: 14,
+  },
+  input: {
+    height: 30,
+  },
+  button: {
+    color: "white",
+    textAlign: "center",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 20,
+    width: "90%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logins: {
+    marginTop: 50,
+    backgroundColor: "transparent",
+    width: "90%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  option: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "transparent",
+    borderColor: "#dfdfdfff",
+    borderWidth: 1,
+    paddingEnd: 25,
+    paddingStart: 25,
+    paddingTop: 15,
+    paddingBottom: 15,
+    borderRadius: 8,
   },
 });

@@ -2,8 +2,9 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
-import * as React from "react";
+import { Link, useRouter } from "expo-router";
+import React, {useContext, useEffect} from "react";
+import { AuthContext } from "@/app/AuthProvider";
 import {
   Alert,
   Image,
@@ -16,6 +17,15 @@ import {
 } from "react-native";
 
 export default function RegisterScreen() {
+    const router = useRouter();
+    const { user, loading } = useContext(AuthContext);
+
+      useEffect(() => {
+      if (!loading && user) {
+        router.replace("/"); // al ingelogd -> naar index
+      }
+    }, [user, loading]);
+
   async function handleAppleSignIn() {
     try {
       const credential = await AppleAuthentication.signInAsync({
