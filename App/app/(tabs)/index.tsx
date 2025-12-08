@@ -1,4 +1,6 @@
 import { ThemedText } from "@/components/themed-text";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import { ThemedView } from "@/components/themed-view";
 import * as AppleAuthentication from "expo-apple-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -37,18 +39,24 @@ const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const router = useRouter();
   const { user } = useContext(AuthContext);
 
-    useEffect(() => {
-    fetch("https://immersible-letty-paranormal.ngrok-free.dev//enquiry.php") // IP van je PC/Server
-      .then((response) => response.json())
-      .then((data) => {
-        setAnnouncements(data);
-      })
-      .catch((error) => {
-        console.error(error);
-        Alert.alert("Fout bij ophalen meldingen", error.message);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+const fetchMeldingen = useCallback(() => {
+  setLoading(true);
+
+  fetch("https://immersible-letty-paranormal.ngrok-free.dev//enquiry.php")
+    .then((response) => response.json())
+    .then((data) => setAnnouncements(data))
+    .catch((error) => {
+      console.error(error);
+      Alert.alert("Fout bij ophalen meldingen", error.message);
+    })
+    .finally(() => setLoading(false));
+}, []);
+
+useFocusEffect(
+  useCallback(() => {
+    fetchMeldingen();
+  }, [fetchMeldingen])
+);
 
   return (
     <AuthGuard>
@@ -97,8 +105,8 @@ const [announcements, setAnnouncements] = useState<Announcement[]>([]);
         <ScrollView keyboardShouldPersistTaps>
           {announcements.map((item) => (
             <View key={item.announcement_id} style={styles.card}>
-              <ThemedView style={{ backgroundColor: "trans"}}>
-                              <ThemedText type="subtitle" style={{ fontSize: 18, color: "black", backgroundColor: "transparant"}}>
+              <View style={{ backgroundColor: "transparant"}}>
+                              <ThemedText type="subtitle" style={{ fontSize: 18, color: "black", backgroundColor: "trans"}}>
                 {item.titel}
               </ThemedText>
                             <ThemedText
@@ -120,7 +128,7 @@ const [announcements, setAnnouncements] = useState<Announcement[]>([]);
               >
                 Prioriteit: {item.prioriteit}
               </ThemedText>
-              </ThemedView>
+              </View>
               <ThemedText style={{color: "#626262ff"}}>{item.bericht}</ThemedText>
 
               {item.gebouw && <ThemedText style={{    padding: 5,

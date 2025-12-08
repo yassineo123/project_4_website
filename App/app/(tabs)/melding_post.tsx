@@ -130,7 +130,7 @@ export default function MeldingPost() {
               Melding aanmaken
             </ThemedText>
 
-            <ThemedView style={{ paddingBottom: 20, width: "100%", alignItems: "center" }}>
+            <View style={{ paddingBottom: 20, width: "100%", alignItems: "center", backgroundColor: "trans" }}>
               {/* Titel */}
               <View style={styles.inputGroup}>
                 <ThemedText style={styles.label}>Titel</ThemedText>
@@ -174,9 +174,10 @@ export default function MeldingPost() {
                         borderColor: prioriteit === p ? "#370075" : "#ddd",
                         backgroundColor: prioriteit === p ? "rgba(55,0,117,0.08)" : "transparent",
                         marginRight: 8,
+
                       }}
                     >
-                      <ThemedText style={{ fontWeight: prioriteit === p ? "700" : "500" }}>{p}</ThemedText>
+                      <ThemedText style={{ fontWeight: prioriteit === p ? "700" : "500", color: "black" }}>{p}</ThemedText>
                     </Pressable>
                   ))}
                 </View>
@@ -215,7 +216,7 @@ export default function MeldingPost() {
                   </LinearGradient>
                 </Pressable>
               </View>
-            </ThemedView>
+            </View>
           </ThemedView>
         </LinearGradient>
       </TouchableWithoutFeedback>

@@ -1,8 +1,8 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import React, { useState, useEffect, useContext } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
+import React, { useState, useContext, useCallback } from "react";
 import AuthGuard from "@/components/AuthGuard";
 import NavBar from "@/components/nav-bar";
 import { AuthContext } from "@/app/AuthProvider";
@@ -29,7 +29,9 @@ export default function KlachtScreen() {
   const [klachten, setKlachten] = useState<Klacht[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  // Deze functie haalt klachten op
+  const fetchKlachten = useCallback(() => {
+    setLoading(true);
     fetch("https://immersible-letty-paranormal.ngrok-free.dev//fetch_klachten.php")
       .then((res) => res.json())
       .then((data) => setKlachten(data))
@@ -39,6 +41,13 @@ export default function KlachtScreen() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  // Refetch elke keer dat het scherm focus krijgt
+  useFocusEffect(
+    useCallback(() => {
+      fetchKlachten();
+    }, [fetchKlachten])
+  );
 
   return (
     <AuthGuard>
@@ -66,7 +75,6 @@ export default function KlachtScreen() {
             Klachten
           </ThemedText>
 
-          {/* Studenten mogen klacht plaatsen */}
           {user?.rol === "student" && (
             <Pressable
               onPress={() => router.push("/klacht_post")}
@@ -89,7 +97,9 @@ export default function KlachtScreen() {
                       Klacht #{item.klacht_id}
                     </ThemedText>
 
-                    <ThemedText style={styles.cardText}>{item.klacht}</ThemedText>
+                    <ThemedText style={styles.cardText}>
+                      {item.klacht}
+                    </ThemedText>
 
                     <ThemedText style={styles.date}>
                       Datum: {item.datum}
@@ -108,9 +118,7 @@ export default function KlachtScreen() {
 
 const styles = StyleSheet.create({
   background: { flex: 1, justifyContent: "center", alignItems: "center" },
-
   image: { width: 120, height: 120, position: "absolute" },
-
   content: {
     backgroundColor: "white",
     padding: 20,
@@ -121,9 +129,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignItems: "center",
   },
-
   title: { fontSize: 24, marginTop: 20, marginBottom: 10, color: "black" },
-
   createButton: {
     backgroundColor: "#1d3557",
     padding: 12,
@@ -131,18 +137,14 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginTop: 10,
   },
-
   card: {
     backgroundColor: "#f5f5f5",
     padding: 15,
     borderRadius: 12,
     marginBottom: 15,
   },
-
   cardTitle: { fontSize: 18, fontWeight: "bold", color: "black" },
-
   cardText: { marginTop: 5, color: "#676767ff" },
-
   date: {
     marginTop: 10,
     padding: 5,
